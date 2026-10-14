@@ -1,0 +1,19 @@
+.web-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  padding: 8px 14px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.web-banner a { color: var(--primary); font-weight: 700; text-decoration: none; }
+.web-banner .row { gap: 6px; }
+
+.web-reminder {
+  position: fixed; bottom: 16px; left: 16px; z-index: 100;
+  width: min(400px, calc(100vw - 32px)); height: min(400px, calc(100vh - 32px));
+  border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .45); border: 1px solid var(--border);
+  animation: web-pop .25s ease-out;
+}
+.web-reminder iframe { width: 100%; height: 100%; border: 0; display: block; background: var(--bg); }
+@keyframes web-pop { from { transform: translateY(20px); opacity: 0; } }
+
+@media (max-width: 600px) {
+  body.full .app { border-inline: 0; }
+}

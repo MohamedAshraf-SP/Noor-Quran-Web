@@ -1,0 +1,24 @@
+{
+  "name": "نور — القرآن الكريم والأذكار ومواقيت الصلاة",
+  "short_name": "نور",
+  "description": "القرآن الكريم، القراء، الإذاعات، الأذكار، الحديث، مواقيت الصلاة والأذان",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1614",
+  "theme_color": "#0d6b4f",
+  "icons": [
+    {
+      "src": "icons/icon128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

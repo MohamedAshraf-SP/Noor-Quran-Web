@@ -67,10 +67,33 @@
     return Promise.resolve(true);
   }
 
-  function systemNotification(id, title, body) {
+  const swReady = 'serviceWorker' in navigator
+    ? navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).catch(() => null)
+    : Promise.resolve(null);
+  navigator.serviceWorker?.addEventListener('message', (e) => {
+    if (e.data?.type === 'notifClick') events.notifClick.list.forEach((fn) => fn(e.data.id));
+  });
+
+  // Android Chrome only allows notifications through a service worker registration.
+  async function systemNotification(id, title, body) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const n = new Notification(title, { body, icon: 'icons/icon128.png', tag: id });
+    const options = { body, icon: 'icons/icon128.png', badge: 'icons/icon48.png', tag: id, data: { id } };
+    const reg = await swReady;
+    if (reg) return reg.showNotification(title, options);
+    const n = new Notification(title, options);
     n.onclick = () => { window.focus(); events.notifClick.list.forEach((fn) => fn(id)); n.close(); };
+  }
+
+  const PRAYERS = { fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' };
+  function payloadText(p) {
+    if (p.mode === 'prayer') {
+      const name = p.key === 'dhuhr' && new Date(p.time).getDay() === 5 ? 'الجمعة' : PRAYERS[p.key];
+      return p.phase === 'now'
+        ? ['🕌 حان الآن موعد صلاة ' + name, p.city || '']
+        : ['🕌 اقترب موعد الصلاة', `بقي ${p.preMin} دقائق على صلاة ${name}`];
+    }
+    if (p.mode === 'message') return [p.title, p.text];
+    return [p.content?.title || '🤍 نور', [p.content?.text, p.content?.ref].filter(Boolean).join('\n')];
   }
 
   function openApp(url) {
@@ -88,7 +111,10 @@
     document.body.append(reminderEl);
     if (document.hidden) {
       const { popupPayload: p } = await chrome.storage.session.get('popupPayload');
-      if (p) systemNotification('reminder', p.title || p.content?.title || '🕌 نور', p.text || p.content?.text || '');
+      if (p) {
+        const [title, body] = payloadText(p);
+        systemNotification(p.mode === 'prayer' ? 'prayer' : 'reminder', title, body);
+      }
     }
     return { id: 1 };
   }
@@ -143,10 +169,21 @@
     events.startup.list.forEach((fn) => fn());
 
     const notifyBtn = document.getElementById('webNotify');
+    const blockedHint = document.getElementById('webNotifyBlocked');
     if (notifyBtn) {
-      const refresh = () => { notifyBtn.hidden = !('Notification' in window) || Notification.permission !== 'default'; };
+      const supported = 'Notification' in window;
+      const refresh = () => {
+        notifyBtn.hidden = !supported || Notification.permission !== 'default';
+        if (blockedHint) blockedHint.hidden = !supported || Notification.permission !== 'denied';
+      };
       refresh();
-      notifyBtn.addEventListener('click', () => Notification.requestPermission().then(refresh));
+      notifyBtn.addEventListener('click', async () => {
+        const result = await Notification.requestPermission();
+        refresh();
+        if (result === 'granted') {
+          systemNotification('welcome', '✅ تم تفعيل الإشعارات', 'ستصلك تنبيهات الأذان والأذكار ما دام موقع «نور» مفتوحاً في أحد التبويبات.');
+        }
+      });
     }
   });
 })();

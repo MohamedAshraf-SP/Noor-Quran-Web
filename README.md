@@ -5,7 +5,7 @@
 **▶ Open the site:** https://mohamedashraf-sp.github.io/Noor-Quran-Web/
 
 The Quran, azkar, hadith and prayer companion as a website — the same app as the
-[Noor browser extension](https://github.com/MohamedAshraf-SP/Noor-Quran-Extention), running in any browser, including phones.
+[Noor browser extension](https://chromewebstore.google.com/detail/nnhfbopcibdhhflpgnkgidadodcafacd?utm_source=item-share-cb) ([source](https://github.com/MohamedAshraf-SP/Noor-Quran-Extention)), running in any browser, including phones.
 
 | Feature | |
 |---|---|
